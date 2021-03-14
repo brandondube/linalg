@@ -82,12 +82,12 @@ func MatTranspose(input [][]float64, out [][]float64) [][]float64 {
 	return out
 }
 
-// inverse of square, non-singular matrix A, via the Gauss-Jordan method
-// the result is stored in out.  If out is non-nil, it is used directly, else
-// a new matrix is allocated
+// MatInvertSquare inverts square matrix input, storing the result in out
 // scratch has the same nil rules as out, but must be n x 2n instead of n x n
-func squareMatrixInvert(input [][]float64, scratch [][]float64, out [][]float64) [][]float64 {
-	n := len(input)
+//
+// Gauss-Jordan elimination is used to perform the inversion, A must be non-singular.
+func MatrixInvertSquare(A [][]float64, scratch [][]float64, out [][]float64) [][]float64 {
+	n := len(A)
 	var n2 = 2 * n
 	if out == nil {
 		out := make([][]float64, n)
@@ -106,7 +106,7 @@ func squareMatrixInvert(input [][]float64, scratch [][]float64, out [][]float64)
 	for i := 0; i < n; i++ {
 		for j := 0; j < n2; j++ {
 			if j < n {
-				scratch[i][j] = input[i][j]
+				scratch[i][j] = A[i][j]
 			}
 			if j == (i + n) {
 				scratch[i][j] = 1
@@ -120,8 +120,7 @@ func squareMatrixInvert(input [][]float64, scratch [][]float64, out [][]float64)
 	// exchange rows of the matrix, bottom-up
 	for i := n - 1; i > 0; i-- {
 		if scratch[i-1][0] < scratch[i][0] {
-			// swap rows
-			scratch[i], scratch[i-1] = scratch[i-1], scratch[i]
+			SwapRows(scratch, i, i-1, false)
 		}
 	}
 
@@ -156,7 +155,7 @@ func squareMatrixInvert(input [][]float64, scratch [][]float64, out [][]float64)
 
 // MatMul computes the matrix-matrix product C = AB for (nxm) matrix A and (mxp)
 // matrix B, storing the result in (nxp) matrix C.
-func matMul(A [][]float64, B [][]float64, C [][]float64) [][]float64 {
+func MatMul(A [][]float64, B [][]float64, C [][]float64) [][]float64 {
 	n := len(A)
 	m := len(A[0])
 	p := len(B[0])
