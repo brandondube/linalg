@@ -66,17 +66,14 @@ func MatNormL2(A [][]float64) float64 {
 }
 
 // MatTranspose transposes (nxp) matrix input and stores the result in (pxn) matrix out
-func MatTranspose(input [][]float64, out [][]float64) [][]float64 {
-	n := len(input)
+func MatTranspose(A [][]float64, out [][]float64) [][]float64 {
+	m, n := Shape(A)
 	if out == nil {
-		out := make([][]float64, n)
-		for i := 0; i < n; i++ {
-			out[i] = make([]float64, n)
-		}
+		out = NewDenseMatrix(n, m, nil)
 	}
-	for i := 0; i < n; i++ {
+	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
-			out[i][j] = input[j][i]
+			out[j][i] = A[i][j]
 		}
 	}
 	return out
@@ -90,16 +87,10 @@ func MatrixInvertSquare(A [][]float64, scratch [][]float64, out [][]float64) [][
 	n := len(A)
 	var n2 = 2 * n
 	if out == nil {
-		out := make([][]float64, n)
-		for i := 0; i < n; i++ {
-			out[i] = make([]float64, n)
-		}
+		out = NewDenseMatrix(n, n, nil)
 	}
 	if scratch == nil {
-		scratch := make([][]float64, n)
-		for i := 0; i < n; i++ {
-			scratch[i] = make([]float64, n2)
-		}
+		scratch = NewDenseMatrix(n, n2, nil)
 	}
 
 	// make scratch into the augmenting identity matrix
@@ -160,11 +151,7 @@ func MatMul(A [][]float64, B [][]float64, C [][]float64) [][]float64 {
 	m := len(A[0])
 	p := len(B[0])
 	if C == nil {
-		C := make([][]float64, n)
-		for i := 0; i < n; i++ {
-			// make also zeros, no further init needed
-			C[i] = make([]float64, p)
-		}
+		C = NewDenseMatrix(n, p, nil)
 	}
 	for i := 0; i < n; i++ {
 		for j := 0; j < p; j++ {
@@ -179,16 +166,12 @@ func MatMul(A [][]float64, B [][]float64, C [][]float64) [][]float64 {
 
 // MatAdd produces the elementwise sum of A and B and stores it in C.
 func MatAdd(A [][]float64, B [][]float64, C [][]float64) [][]float64 {
-	n := len(A)
-	m := len(A[0])
+	m, n := Shape(A)
 	if C == nil {
-		C = make([][]float64, n)
-		for i := 0; i < n; i++ {
-			C[i] = make([]float64, m)
-		}
+		C = NewDenseMatrix(m, n, nil)
 	}
-	for i := 0; i < n; i++ {
-		for j := 0; j < m; j++ {
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
 			C[i][j] = A[i][j] + B[i][j]
 		}
 	}
@@ -197,16 +180,12 @@ func MatAdd(A [][]float64, B [][]float64, C [][]float64) [][]float64 {
 
 // MatSub produces the elementwise difference A-B and stores it in C.
 func MatSub(A [][]float64, B [][]float64, C [][]float64) [][]float64 {
-	n := len(A)
-	m := len(A[0])
+	m, n := Shape(A)
 	if C == nil {
-		C = make([][]float64, n)
-		for i := 0; i < n; i++ {
-			C[i] = make([]float64, m)
-		}
+		C = NewDenseMatrix(m, n, nil)
 	}
-	for i := 0; i < n; i++ {
-		for j := 0; j < m; j++ {
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
 			C[i][j] = A[i][j] - B[i][j]
 		}
 	}
