@@ -6,6 +6,8 @@ import (
 	"unsafe"
 )
 
+const almostEps = 1e-16
+
 func TestNewDenseMatrix(t *testing.T) {
 	n := 4
 	m := 6
@@ -89,7 +91,11 @@ func TestMatCopy(t *testing.T) {
 }
 
 func TestMatCopyTo(t *testing.T) {
-	A := NewDenseMatrix(4, 4, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16})
+	A := NewDenseMatrix(4, 4, []float64{
+		1, 2, 3, 4,
+		5, 6, 7, 8,
+		9, 10, 11, 12,
+		13, 14, 15, 16})
 	B := NewDenseMatrix(4, 4, nil)
 	MatCopyTo(A, B)
 	m, n := Shape(A)
@@ -101,5 +107,128 @@ func TestMatCopyTo(t *testing.T) {
 				t.Errorf("at (%d,%d), expected A==B, got %f and %f", i, j, a, b)
 			}
 		}
+	}
+}
+
+func TestMatL2Norm(t *testing.T) {
+	data := []float64{
+		1, 2, 3,
+		4, 5, 6}
+	A := NewDenseMatrix(2, 3, data)
+	var expectation float64
+	for _, v := range data {
+		expectation += v * v
+	}
+	norm := MatNormL2(A)
+	if !almostEqual(expectation, norm, almostEps) {
+		t.Errorf("expected %f, got %f", expectation, norm)
+	}
+}
+
+func TestMatTranspose(t *testing.T) {
+	inp := NewDenseMatrix(2, 3, []float64{
+		1, 2, 3,
+		4, 5, 6})
+	exp := NewDenseMatrix(3, 2, []float64{
+		1, 4,
+		2, 5,
+		3, 6})
+	inpT := MatTranspose(inp, nil)
+	t.Log(exp)
+	t.Log(inpT)
+	if !matrixEqual(exp, inpT) {
+		t.Error("matrix transpose did not match expectation")
+	}
+}
+
+func TestMatAdd(t *testing.T) {
+	inp := NewDenseMatrix(2, 3, []float64{
+		1, 2, 3,
+		4, 5, 6,
+	})
+	sub := NewDenseMatrix(2, 3, []float64{
+		2, 3, 4,
+		5, 6, 7,
+	})
+	exp := NewDenseMatrix(2, 3, []float64{
+		3, 5, 7,
+		9, 11, 13,
+	})
+	out := MatAdd(inp, sub, nil)
+	if !matrixEqual(exp, out) {
+		t.Error("matrix sub did not match expectation")
+	}
+}
+
+func TestMatSub(t *testing.T) {
+	inp := NewDenseMatrix(2, 3, []float64{
+		1, 2, 3,
+		4, 5, 6,
+	})
+	sub := NewDenseMatrix(2, 3, []float64{
+		2, 3, 4,
+		5, 6, 7,
+	})
+	exp := NewDenseMatrix(2, 3, []float64{
+		-1, -1, -1,
+		-1, -1, -1,
+	})
+	out := MatSub(inp, sub, nil)
+	if !matrixEqual(exp, out) {
+		t.Error("matrix sub did not match expectation")
+	}
+}
+
+func TestMatSwapRows(t *testing.T) {
+	inp1 := NewDenseMatrix(2, 3, []float64{
+		1, 2, 3,
+		4, 5, 6,
+	})
+	inp2 := NewDenseMatrix(2, 3, []float64{
+		1, 2, 3,
+		4, 5, 6,
+	})
+	exp := NewDenseMatrix(2, 3, []float64{
+		4, 5, 6,
+		1, 2, 3,
+	})
+	SwapRows(inp1, 0, 1, false)
+	SwapRows(inp2, 0, 1, true)
+	if !matrixEqual(exp, inp1) {
+		t.Error("matrix swap rows non copying did not match expectation")
+	}
+	if !matrixEqual(exp, inp2) {
+		t.Error("matrix swap rows copying did not match expectation")
+	}
+}
+
+func TestMatSwapCols(t *testing.T) {
+	inp := NewDenseMatrix(2, 3, []float64{
+		1, 2, 3,
+		4, 5, 6,
+	})
+	exp := NewDenseMatrix(2, 3, []float64{
+		2, 1, 3,
+		5, 4, 6,
+	})
+	SwapCols(inp, 0, 1)
+	if !matrixEqual(exp, inp) {
+		t.Error("matrix swap cols did not match expectation")
+	}
+}
+
+func TestSquareMatrixInvert(t *testing.T) {
+	inp := NewDenseMatrix(2, 2, []float64{
+		1, 2,
+		3, 4,
+	})
+	exp := NewDenseMatrix(2, 2, []float64{
+		-2, 1,
+		1.5, -0.5,
+	})
+	inv := MatrixInvertSquare(inp, nil, nil)
+	t.Log(inv)
+	if !matrixEqual(exp, inv) {
+		t.Error("matrix inversion did not match expectation")
 	}
 }
