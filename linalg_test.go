@@ -22,3 +22,17 @@ func matrixEqualTol(A, B [][]float64, tol float64) bool {
 func matrixEqual(A, B [][]float64) bool {
 	return matrixEqualTol(A, B, 0)
 }
+
+func vectorEqualTol(a, b []float64, tol float64) bool {
+	n := len(a)
+	for i := 0; i < n; i++ {
+		if !almostEqual(a[i], b[i], tol) {
+			return false
+		}
+	}
+	return true
+}
+
+func vectorEqual(a, b []float64) bool {
+	return vectorEqualTol(a, b, 0)
+}
