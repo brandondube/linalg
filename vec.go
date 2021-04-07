@@ -11,10 +11,11 @@ func MatVecProd(A [][]float64, x []float64, out []float64) []float64 {
 		out = make([]float64, m)
 	}
 	for i := 0; i < m; i++ {
-		out[i] = 0
+		tmp := 0.0
 		for j := 0; j < n; j++ {
-			out[i] += A[i][j] * x[j]
+			tmp += A[i][j] * x[j]
 		}
+		out[i] = tmp
 	}
 	return out
 }

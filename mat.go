@@ -155,10 +155,11 @@ func MatMul(A [][]float64, B [][]float64, C [][]float64) [][]float64 {
 	}
 	for i := 0; i < n; i++ {
 		for j := 0; j < p; j++ {
-			C[i][j] = 0
+			tmp := 0.0
 			for k := 0; k < m; k++ {
-				C[i][j] += A[i][k] * B[k][j]
+				tmp += A[i][k] * B[k][j]
 			}
+			C[i][j] = tmp
 		}
 	}
 	return C
